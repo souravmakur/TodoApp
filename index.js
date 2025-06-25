@@ -1,10 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require("path");
-const app = express();
 const cors = require("cors");
-app.use(bodyParser.json());
+
+const app = express();
+
 app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname))); // ✅ Serves HTML, CSS, JS files
 
 let todos = [];
 
@@ -49,11 +52,10 @@ app.delete('/todos/:id', (req, res) => {
     }
 });
 
-app.get("/", (req,res) => {
+app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
-})
+});
 
-
-app.listen(3000);
-
-
+app.listen(process.env.PORT || 3000, () => {
+    console.log("Server running");
+});
