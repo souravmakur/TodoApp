@@ -1,0 +1,130 @@
+<head>
+    <title>
+        TODO app
+    </title>
+</head>
+<link rel="stylesheet" href="style.css">
+
+<script>
+       function getRandomColor() {
+           // const colors = ["#1abc9c", "#3498db", "#9b59b6", "#f39c12", "#2ecc71", "#8e44ad"];
+            const colors = ["#1abc9c", "#3498db", "#2ecc71", "#8e44ad", "#16a085", "#2980b9"];
+
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+
+    function deleteDone(){
+        console.log("done delete");
+    var parentElement = document.getElementById("mainArea");
+    parentElement.innerHTML = "";  // Clear previous list
+    getData(); // Reload the updated list
+    }
+
+    function deleteTodo(id){
+        console.log(id);
+        fetch("http://localhost:3000/todos/"+id,{
+            method: "DELETE",
+            headers:{
+                "Content-Type": "application/json"
+            }
+        }).then(deleteDone);
+    }
+
+    function todosCallback(data){
+       var parentElement = document.getElementById("mainArea");
+            for (var i = 0; i < data.length; i++) {
+                var childElement = document.createElement("div");
+                childElement.classList.add("todo-card");
+                childElement.style.backgroundColor = getRandomColor();
+
+                var textWrapper = document.createElement("div");
+                textWrapper.style.flex = "1";
+
+                var titleSpan = document.createElement("span");
+                titleSpan.innerHTML = data[i].title;
+
+                var descSpan = document.createElement("span");
+                descSpan.innerHTML = data[i].description;
+
+                textWrapper.appendChild(titleSpan);
+                textWrapper.appendChild(descSpan);
+
+                var deleteButton = document.createElement("button");
+                deleteButton.innerHTML = "Delete";
+                deleteButton.setAttribute("onclick", "deleteTodo(" + data[i].id + ")");
+
+                childElement.appendChild(textWrapper);
+                childElement.appendChild(deleteButton);
+
+                parentElement.appendChild(childElement);
+        }
+    }
+
+    function callback2(resp){
+        resp.json().then(todosCallback);
+    }
+
+    function getData(){
+        fetch("http://localhost:3000/todos",{
+            method:"GET",
+        }).then(callback2);
+    }
+    getData();
+
+    function parsedResponse(data){
+            console.log(data);
+
+            var parentElement = document.getElementById("mainArea");
+            var childElement = document.createElement("div");
+
+            var grandChildElement1 = document.createElement("span");
+            grandChildElement1.innerHTML = data.title;
+
+            var grandChildElement2 = document.createElement("span");
+            grandChildElement2.innerHTML = data.description;
+
+            var grandChildElement3 = document.createElement("button");
+            grandChildElement3.innerHTML = "Delete";
+            
+
+            childElement.appendChild(grandChildElement1);
+            childElement.appendChild(grandChildElement2);
+            childElement.appendChild(grandChildElement3);
+
+            parentElement.appendChild(childElement);
+    }
+
+    function callback(resp){
+        //resp.json().then(parsedResponse);
+        deleteDone();
+    }
+
+    function onPress(){
+        var title = document.getElementById("title1").value;
+        var description = document.getElementById("description").value;
+
+        fetch("http://localhost:3000/todos",{
+            method: "POST",
+            body: JSON.stringify({
+                title: title,
+                description: description
+            }),
+            headers:{
+                "Content-Type": "application/json"
+            }
+        }).then(callback);
+    }
+</script>
+
+<body>
+  <div class="container">
+    <h1>TODO APP</h1>
+    Todo title 
+    <input type="text" id="title1"><br><br>
+    Todo description
+    <input type="text" id="description"><br><br>
+    <button onclick="onPress()">send todo</button>
+    <div id="mainArea"></div>
+  </div>
+</body>
